@@ -4,5 +4,5 @@ using Microsoft.EntityFrameworkCore;
 public class Category : BaseModel{
     public string Name {set; get;}
     public string Description {get; set;}
-    public List<Book> Books {get; set;}
+    public virtual List<BookCategory> BookCategories {get; set;}
 }

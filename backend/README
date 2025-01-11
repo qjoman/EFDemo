@@ -1,0 +1,9 @@
+### TODO
+- [X] Refactor models navigation properties and ids
+- [X] Add DTOs and refactor models/controllers
+- [ ] Add pagination
+- [ ] Add authentication
+- [ ] Add role based acess control
+- [ ] Admin role should be able to renable deleted entities
+- [ ] Choose either Angular or React for the frontend portion
+- [ ] Maybe refactor code for repository pattern instead context direct acess

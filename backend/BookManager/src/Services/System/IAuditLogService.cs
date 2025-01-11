@@ -1,4 +1,5 @@
 public interface IAuditLogService 
 {
-    // Additional methods specific to AuditLog can be added here
+    Task<IEnumerable<AuditLog>> GetAllAsync();
+    Task<AuditLog> GetByIdAsync(Guid id);
 }

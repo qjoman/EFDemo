@@ -153,3 +153,4 @@
 /workspaces/backend/BookManager/obj/Debug/net9.0/BookManager.pdb
 /workspaces/backend/BookManager/obj/Debug/net9.0/BookManager.genruntimeconfig.cache
 /workspaces/backend/BookManager/obj/Debug/net9.0/ref/BookManager.dll
+/workspaces/backend/BookManager/obj/Debug/net9.0/BookManager.sourcelink.json

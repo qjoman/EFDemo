@@ -1,6 +1,12 @@
+using System.Text.Json.Serialization;
+
 public class OrderItem : BaseModel{
-    public Order Order {get; set;}
-    public Book Book {get; set;}
+    public Guid OrderId {get; set;}
+    [JsonIgnore]
+    public virtual Order Order {get; set;}
+    public Guid BookId{get;set;}
+    [JsonIgnore]
+    public virtual Book Book {get; set;}
     public int Quantity {get; set;}
-    public BookPrice BookPrice {get;set;}
+    public decimal ItemPrice {get;set;}
 }

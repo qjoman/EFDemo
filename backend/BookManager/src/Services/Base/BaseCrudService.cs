@@ -1,3 +1,4 @@
+using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 
 public class CrudService<T> : IBaseCrudService<T> where T : BaseModel
@@ -21,10 +22,6 @@ public class CrudService<T> : IBaseCrudService<T> where T : BaseModel
 
     public virtual async Task AddAsync(T entity)
     {
-        entity.CreatedAt = DateTime.UtcNow;
-        entity.UpdatedAt = DateTime.UtcNow;
-        entity.IsActive = true;
-
         await _context.Set<T>().AddAsync(entity);
         await _context.SaveChangesAsync();
     }
@@ -34,7 +31,17 @@ public class CrudService<T> : IBaseCrudService<T> where T : BaseModel
         var existingEntity = await _context.Set<T>().FindAsync(entity.Id);
         if (existingEntity == null || !existingEntity.IsActive) return false;
 
-        existingEntity = entity;
+        var properties = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+        foreach (var property in properties)
+        {
+            if (!property.CanWrite)
+                continue;
+
+            var newValue = property.GetValue(entity);
+
+            property.SetValue(existingEntity, newValue);
+        }
+
         existingEntity.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();

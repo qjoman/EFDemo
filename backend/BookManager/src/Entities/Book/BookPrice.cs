@@ -1,5 +1,9 @@
+using System.Text.Json.Serialization;
+
 public class BookPrice: BaseModel{
-    public Book Book {get; set;}
-    public DateTime valideFrom {get;set;}
+    public Guid BookId{set;get;}
+    [JsonIgnore]
+    public virtual Book Book {get; set;}
+    public DateTime ValideFrom {get;set;}
     public decimal Price {get;set;}
 }

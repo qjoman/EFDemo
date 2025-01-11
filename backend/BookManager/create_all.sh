@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Script accepts two arguments: service folder location and service name
+# Script accepts three arguments: entity name, folder and a boolean for crud services
 ENTITY_NAME=$1
 ENTITY_FOLDER=$2
-USE_BASEMODEL=$3
+CRUD=$3
 
 
 # Ensure entity folder exists inside src/Entities
@@ -22,7 +22,16 @@ if [[ ! -d "$SERVICE_DIR" ]]; then
     exit 1
 fi
 
+# Ensure controller folder exists inside src/Controllers
+CONTROLLER_DIR="src/Controllers/$ENTITY_FOLDER"
+
+if [[ ! -d "$MODEL_DIR" ]]; then
+    echo "Error: Controllers folder $CONTROLLER_DIR does not exist!"
+    exit 1
+fi
+
 # Create the files
+CONTROLLER_FILE="$CONTROLLER_DIR/${ENTITY_NAME}Controller.cs"
 MODEL_FILE="$MODEL_DIR/${ENTITY_NAME}.cs"
 INTERFACE_FILE="$SERVICE_DIR/I${ENTITY_NAME}Service.cs"
 SERVICE_FILE="$SERVICE_DIR/${ENTITY_NAME}Service.cs"
@@ -30,9 +39,10 @@ SERVICE_FILE="$SERVICE_DIR/${ENTITY_NAME}Service.cs"
 mkdir -p "$(dirname "$MODEL_FILE")"
 mkdir -p "$(dirname "$INTERFACE_FILE")"
 mkdir -p "$(dirname "$SERVICE_FILE")"
+mkdir -p "$(dirname "$CONTROLLER_FILE")"
 
 # If BaseModel is to be used
-if [ "$USE_BASEMODEL" == "true" ]; then
+if [ "$CRUD" == "true" ]; then
 
     # Model file
     cat <<EOL > "$MODEL_FILE"
@@ -61,7 +71,25 @@ public class ${ENTITY_NAME}Service : CrudService<$ENTITY_NAME>, I${ENTITY_NAME}S
     // Add or override custom methods specific to $ENTITY_NAME here
 }
 EOL
-# No BaseModel used
+
+    # Controller
+    cat <<EOL > "$CONTROLLER_FILE"
+using Microsoft.AspNetCore.Mvc;
+
+[ApiController]
+[Route("api/[controller]")]
+public class ${ENTITY_NAME}Controller : CrudController<${ENTITY_NAME}>
+{
+    public ${ENTITY_NAME}Controller(I${ENTITY_NAME}Service crudService) : base(crudService)
+    {
+    }
+    // Add or override custom methods specific to $ENTITY_NAME here
+}
+
+
+EOL
+
+# No CRUD
 else
     # Model file
     cat <<EOL > "$MODEL_FILE"
@@ -87,6 +115,18 @@ public class ${ENTITY_NAME}Service : I${ENTITY_NAME}Service
     {
     }
 
+    // Add or override custom methods specific to $ENTITY_NAME here
+}
+EOL
+
+    # Controller
+    cat <<EOL > "$CONTROLLER_FILE"
+using Microsoft.AspNetCore.Mvc;
+
+[ApiController]
+[Route("api/[controller]")]
+public class ${ENTITY_NAME}Controller : ControllerBase
+{
     // Add or override custom methods specific to $ENTITY_NAME here
 }
 EOL
