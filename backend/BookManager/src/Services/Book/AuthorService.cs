@@ -9,7 +9,7 @@ public class AuthorService : IAuthorService
         _context = context;
     }
 
-    public async Task<Guid> AddAsync(CreateAuthorDTO entity)
+    public async Task<Author> AddAsync(CreateAuthorDTO entity)
     {
         var author = new Author
         {
@@ -17,14 +17,15 @@ public class AuthorService : IAuthorService
             Books = new List<Book>()
         };
 
+        await _context.Authors.AddAsync(author);
         await _context.SaveChangesAsync();
 
-        return author.Id;
+        return author;
     }
 
     public async Task<bool> DeleteAsync(Guid id)
     {
-        var entity = await _context.Set<Author>().FindAsync(id);
+        var entity = await _context.Authors.FindAsync(id);
         if (entity == null || !entity.IsActive) return false;
 
         entity.IsActive = false;
@@ -35,7 +36,7 @@ public class AuthorService : IAuthorService
 
     public async Task<IEnumerable<DetaislAuthorDTO>> GetAllAsync()
     {
-        return await _context.Set<Author>().Where(x => x.IsActive).Select(author => new DetaislAuthorDTO{
+        return await _context.Authors.Where(x => x.IsActive).Select(author => new DetaislAuthorDTO{
                 Name = author.Name,
                 Id = author.Id,
                 Books = author.Books.Select(b => new DetailsAuthorBooksDTO{
@@ -48,7 +49,7 @@ public class AuthorService : IAuthorService
 
     public async Task<DetaislAuthorDTO> GetByIdAsync(Guid id)
     {
-        return await _context.Set<Author>().Where(x => x.IsActive && x.Id == id).Select(author => new DetaislAuthorDTO{
+        return await _context.Authors.Where(x => x.IsActive && x.Id == id).Select(author => new DetaislAuthorDTO{
                 Name = author.Name,
                 Id = author.Id,
                 Books = author.Books.Select(b => new DetailsAuthorBooksDTO{
@@ -60,7 +61,7 @@ public class AuthorService : IAuthorService
 
     public async Task<bool> UpdateAsync(CreateAuthorDTO entity, Guid id)
     {
-        var existingEntity = await _context.Set<Author>().FindAsync(id);
+        var existingEntity = await _context.Authors.FindAsync(id);
         if (existingEntity == null || !existingEntity.IsActive) return false;
 
         existingEntity.Name = entity.Name;

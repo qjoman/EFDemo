@@ -9,7 +9,6 @@ builder.Services.AddDbContext<BookManagerContext>(option => option.UseSqlServer(
 // DI for book services
 builder.Services.AddScoped<IAuthorService, AuthorService>();
 builder.Services.AddScoped<IBookService, BookService>();
-builder.Services.AddScoped<IBookPriceService, BookPriceService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 // DI for order services

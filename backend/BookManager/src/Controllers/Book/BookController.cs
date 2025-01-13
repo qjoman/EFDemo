@@ -29,8 +29,8 @@ public class BookController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Add([FromBody] CreateBookDTO model)
     {
-        var id = await _bookService.AddAsync(model);
-        return CreatedAtAction(nameof(GetOneById), new { id = id }, model);
+        var entity = await _bookService.AddAsync(model);
+        return CreatedAtAction(nameof(GetOneById), new { id = entity.Id }, entity);
     }
 
     [HttpPut("{id}")]
@@ -49,5 +49,12 @@ public class BookController : ControllerBase
         if (!success) return NotFound();
 
         return NoContent();
+    }
+
+    [HttpPost("{id}/BookPrices")]
+    public async Task<IActionResult> AddBookPrice(Guid id, [FromBody] CreateBookPriceDTO model){
+         var entity = await _bookService.AddBookPriceAsync(model,id);
+         
+        return CreatedAtAction(nameof(GetOneById), new { id = entity.Id }, entity); 
     }
 }

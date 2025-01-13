@@ -29,8 +29,8 @@ public class AuthorController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Add([FromBody] CreateAuthorDTO model)
     {
-        var id = await _authorService.AddAsync(model);
-        return CreatedAtAction(nameof(GetOneById), new { id = id }, model);
+        var entity = await _authorService.AddAsync(model);
+        return CreatedAtAction(nameof(GetOneById), new { id = entity.Id }, entity);
     }
 
     [HttpPut("{id}")]

@@ -1,6 +1,8 @@
 ### TODO
 - [X] Refactor models navigation properties and ids
 - [X] Add DTOs and refactor models/controllers
+- [ ] Use Include/ThenInclude instead of multiple queries on BooksCategories and others
+- [X] Update all references of Set<T> for the right context sets
 - [ ] Add tests for controllers and services
 - [ ] Add pagination
 - [ ] Add testing for pagination

@@ -7,5 +7,5 @@ public class CreateBookDTO()
     public DateTime PublishedAt { get; set; }
     public int Stock { get; set; }
     public List<Guid> BookCategories { get; set; }
-    public List<BookPriceDTO> BookPrices { get; set; }
+    public List<CreateBookPriceDTO> BookPrices { get; set; }
 }

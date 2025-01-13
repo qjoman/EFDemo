@@ -12,11 +12,11 @@ public class AuditLogService : IAuditLogService
 
     public async Task<IEnumerable<AuditLog>> GetAllAsync()
     {
-        return await _context.Set<AuditLog>().ToListAsync();
+        return await _context.AuditLogs.ToListAsync();
     }
 
     public async Task<AuditLog> GetByIdAsync(Guid id)
     {
-        return await _context.Set<AuditLog>().FirstOrDefaultAsync(x => x.Id == id);
+        return await _context.AuditLogs.FirstOrDefaultAsync(x => x.Id == id);
     }
 }

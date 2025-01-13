@@ -111,8 +111,10 @@ EOL
     cat <<EOL > "$SERVICE_FILE"
 public class ${ENTITY_NAME}Service : I${ENTITY_NAME}Service
 {
+    private BookManagerContext _context;
     public ${ENTITY_NAME}Service(BookManagerContext context)
     {
+        _context = context;
     }
 
     // Add or override custom methods specific to $ENTITY_NAME here
@@ -127,7 +129,12 @@ using Microsoft.AspNetCore.Mvc;
 [Route("api/[controller]")]
 public class ${ENTITY_NAME}Controller : ControllerBase
 {
+    private I${ENTITY_NAME}Service _controlerService;
     // Add or override custom methods specific to $ENTITY_NAME here
+    public ${ENTITY_NAME}Controller(I${ENTITY_NAME}Service controlerService)
+    {
+        _controlerService = controlerService;
+    }
 }
 EOL
 fi

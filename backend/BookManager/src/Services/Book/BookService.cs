@@ -11,64 +11,65 @@ public class BookService : IBookService
 
     public async Task<IEnumerable<DetailsBookDTO>> GetAllAsync()
     {
-        var books = await _context.Set<Book>()
+        return await _context.Books
             .Include(x => x.Author)
             .Include(x => x.BookPrices)
             .Include(x => x.BookCategories)
-            .Where(x => x.IsActive).ToListAsync();
-
-        var ret = new List<DetailsBookDTO>();
-
-        foreach (Book b in books)
-        {
-            var categories = await _context
-                .Set<Category>()
-                .Where(c => b.BookCategories.Select(x => x.CategoryId).Contains(c.Id))
-                .Select(c => c.Name)
-                .ToListAsync();
-
-            ret.Add(
-            new DetailsBookDTO
+            .ThenInclude(x => x.Category)
+            .Where(x => x.IsActive)
+            .Select(b => new DetailsBookDTO
             {
-                Author = b.Author,
-                Categories = categories,
+                Id = b.Id,
+                Author = new DetailsAuthorBookDTO{
+                    Id = b.Author.Id,
+                    Name = b.Author.Name
+                },
+                Categories = b.BookCategories.Select(c => c.Category.Name).ToList(),
                 CoverImageUrl = b.CoverImageUrl,
                 Description = b.Description,
                 Price = b.BookPrices.OrderByDescending(x => x.ValideFrom).FirstOrDefault().Price,
+                BookPrices = b.BookPrices.OrderByDescending(x => x.ValideFrom).Select(bc => new DetailsBookPriceDTO{
+                    Id = bc.Id,
+                    Price = bc.Price,
+                    ValideFrom = bc.ValideFrom
+                }).ToList(),
                 PublishedAt = b.PublishedAt,
                 Stock = b.Stock,
                 Title = b.Title
-            });
-        }
-
-        return ret;
+            }).ToListAsync();
     }
 
     public async Task<DetailsBookDTO> GetByIdAsync(Guid id)
     {
-        await _context.Set<Book>()
+        return await _context.Books
+            .Include(x => x.Author)
             .Include(x => x.BookPrices)
             .Include(x => x.BookCategories)
-            .Where(x => x.IsActive && x.Id == id)
-            .Select(b =>
-                new Book
-                {
-                    Id = b.Id,
-                    Title = b.Title,
-                    AuthorId = b.AuthorId,
-                    Description = b.Description,
-                    CoverImageUrl = b.CoverImageUrl,
-                    PublishedAt = b.PublishedAt,
-                    Stock = b.Stock,
-                    BookPrices = b.BookPrices.OrderByDescending(p => p.Price).ToList(),
-                    BookCategories = b.BookCategories.ToList()
-                }
-            ).FirstOrDefaultAsync();
-
-        return new DetailsBookDTO();
+            .ThenInclude(x => x.Category)
+            .Where(x => x.Id == id && x.IsActive)
+            .Select(b => new DetailsBookDTO
+            {
+                Id = b.Id,
+                Author = new DetailsAuthorBookDTO{
+                    Id = b.Author.Id,
+                    Name = b.Author.Name
+                },
+                Categories = b.BookCategories.Select(c => c.Category.Name).ToList(),
+                CoverImageUrl = b.CoverImageUrl,
+                Description = b.Description,
+                Price = b.BookPrices.OrderByDescending(x => x.ValideFrom).FirstOrDefault().Price,
+                BookPrices = b.BookPrices.OrderByDescending(x => x.ValideFrom).Select(bc => new DetailsBookPriceDTO{
+                    Id = bc.Id,
+                    Price = bc.Price,
+                    ValideFrom = bc.ValideFrom
+                }).ToList(),
+                PublishedAt = b.PublishedAt,
+                Stock = b.Stock,
+                Title = b.Title
+            }).FirstOrDefaultAsync();
     }
 
-    public async Task<Guid> AddAsync(CreateBookDTO entity)
+    public async Task<Book> AddAsync(CreateBookDTO entity)
     {
         var newBook = new Book
         {
@@ -92,12 +93,12 @@ public class BookService : IBookService
 
         var tasks = new List<Task>
         {
-            _context.Set<Book>().AddAsync(newBook).AsTask()
+            _context.Books.AddAsync(newBook).AsTask()
         };
 
         foreach (var bc in entity.BookCategories)
         {
-            tasks.Add(_context.Set<BookCategory>().AddAsync(new BookCategory
+            tasks.Add(_context.BookCategories.AddAsync(new BookCategory
             {
                 BookId = newBook.Id,
                 CategoryId = bc
@@ -108,12 +109,12 @@ public class BookService : IBookService
 
         await _context.SaveChangesAsync();
 
-        return newBook.Id;
+        return newBook;
     }
 
     public async Task<bool> UpdateAsync(CreateBookDTO entity, Guid id)
     {
-        var existingEntity = await _context.Set<Book>().FindAsync(id);
+        var existingEntity = await _context.Books.FindAsync(id);
         if (existingEntity == null || !existingEntity.IsActive) return false;
 
         existingEntity.AuthorId = entity.AuthorId;
@@ -130,12 +131,29 @@ public class BookService : IBookService
 
     public async Task<bool> DeleteAsync(Guid id)
     {
-        var entity = await _context.Set<Book>().FindAsync(id);
+        var entity = await _context.Books.FindAsync(id);
         if (entity == null || !entity.IsActive) return false;
 
         entity.IsActive = false;
 
         await _context.SaveChangesAsync();
         return true;
+    }
+
+    public async Task<Book> AddBookPriceAsync(CreateBookPriceDTO entity, Guid bookId)
+    {
+        var bookPrice = new BookPrice
+        {
+            BookId = bookId,
+            Price = entity.Price,
+            ValideFrom = entity.ValideFrom
+        };
+
+        var book = await _context.Books.Include(x => x.BookPrices).Where(x => x.Id == bookId).FirstOrDefaultAsync();
+        book.BookPrices.Add(bookPrice);
+
+        await _context.SaveChangesAsync();
+
+        return book;
     }
 }

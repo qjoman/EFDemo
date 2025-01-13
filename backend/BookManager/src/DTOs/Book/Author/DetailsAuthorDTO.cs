@@ -1,7 +1,6 @@
-public class DetaislAuthorDTO
+public class DetaislAuthorDTO : CreateAuthorDTO
 {
     public Guid Id { get; set; }
-    public string Name { get; set; }
     public List<DetailsAuthorBooksDTO> Books {get;set;}
 }
 
