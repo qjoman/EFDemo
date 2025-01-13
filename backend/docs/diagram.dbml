@@ -1,0 +1,84 @@
+Table Author{
+  Id Guid [primary key]
+  Name string [not null, unique]
+}
+
+Table Book{
+  Id Guid [pk]
+  AuthorId Guid [ref: > Author.Id]
+  Title string
+  Description string
+  CoverImageUrl string
+  PublishedAt datetime
+  Stock int
+
+  indexes {
+    (Title, AuthorId) [unique]
+  }
+}
+
+Table BookPrice {
+  Id Guid [pk]
+  BookId Guid [ref: > Book.Id]
+  ValidFrom datetime
+  Price decimal
+}
+
+Table Category {
+  Id Guid [pk]
+  Name string [not null, unique]
+  Description string
+}
+
+Table BookCategory{
+  BookId Guid [ref: > Book.Id]
+  CategoryId Guid [ref: > Category.Id]
+  indexes {
+    (BookId, CategoryId) [pk]
+  }
+}
+
+Table Order{
+  Id Guid [pk]
+  Customer User [ref: > User.Id]
+  OrderDate datetime
+  TotalPrice decimal
+  OrderStatus OrderStatus
+}
+
+Table OrderItem{
+  Id Guid [pk]
+  OrderId Guid [ref: > Order.Id]
+  BookId Guid [ref: > Book.Id]
+  Quantity int
+  ItemPrice decimal
+}
+
+Table User{
+  Id Guid [pk]
+  Username string [unique]
+  Email string [unique]
+  Name string
+  UserRole UserRole
+  PasswordHash string
+}
+
+Table AuditLog{
+  Id Guid [pk]
+  EntityName string
+  EntityId Guid
+  Action string
+  UserId Guid [null, ref: > User.Id]
+  Timestamp datetime
+}
+
+enum UserRole{
+  Admin
+  Customer
+}
+
+enum OrderStatus{
+  Pending
+  Shipped
+  Finished
+}
